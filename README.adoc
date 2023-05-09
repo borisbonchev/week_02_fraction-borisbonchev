@@ -1,0 +1,141 @@
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+:imagesdir: images/
+endif::[]
+
+:stem:
+== Exercise Fraction part 1.
+
+In this exercise, you are writing a _Fraction_ class test-driven, meaning you write the tests first.
+The mathematical properties of fractions are at the end of this exercise, if you need to look them up.
+The source code is in English, using the common names *fraction*, *numerator* and *denominator*. +
+The mathematical representation typically is:
+  
+`numerator/denominator`
+
+[TIP]
+====
+In this exercise the tests are predefined, to direct you towards using Parameterized tests.
+Some the test values are given, some other have to enabled by un-commenting the test value lines.
+====
+
+*Fraction Constructor*
+
+. *Implement test*  Given is the the test method `void t1Getters(  String message, int a, int b, int num, int denom )`.
+  This is a parameterized test method that uses `@CsvSource` to provide the values.
+  Implement the test method so that it tests both getters `int getNumerator()` and `int getDenominator()`.
+  Use link:https://fontysvenlo.github.io/prc2/docs/unit-testing-basics/#_soft_assertions[soft assertions] to test both getters in one test.
+  Some sample values are given, but be prepared to add more rows.
+. *Implement* the constructor of Fraction with parameters `numerator` and `denominator`. The class `Fraction` must only contain two _fields_, `numerator` and `denominator`, make sure the fields are *final*. Make sure to link:https://en.wikipedia.org/wiki/Fraction#Simplifying_(reducing)_fractions[reduce] the fraction before saving `numerator` and `denominator`.
+. *Run* the tests. If they are still red, improve your code to make them green.
+
+[TIP]
+====
+* A fraction  is normalized when the denominator is non-negative
+  and the greatest common divisor of numerator and denominator is 1.
+* Thereby the minimum value of the denominator of a normalized fraction is +1.
+* If the fraction is negative, the numerator carries the sign.
+====
+
+. *Write test for ToString* Give is the test method: `void t2fractionToString( String message, String expected, int num, int denom )`. Create a fraction from the inputs of the CsvSource and check that the `toString` produces the expected output.
+. *Implement* Create the `toString()` method.
+
+== Exercise Fraction part 2.
+
+The next test method to implement is `void t3FractionOps( String message, String opName, String expected, int a, int b, int c, int d )`.
+
+The goal of this method is to test all the link:https://en.wikipedia.org/wiki/Fraction#Arithmetic_with_fractions[arithmatic operations] of the `Fraction` class.
+
+The test method should do the following for the operation `times`:
+
+1. Retrieve the arithmatic `operation` (times) from the `operations` map.
+2. Create two fractions `a/b` and `c/d`.
+3. Use the retrieved `operation` by using the `apply` method with the two fractions, see link:https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/util/function/BiFunction.html[BiFunction].
+4. `assertThat` the result is the same as expected.
+
+=== Now test and implement the following operations
+
+* *Times helper* +
+  Implement the helper method `Fraction times( int otherN, int otherD )`
+  to multiply `this` fraction with numerator `otherN` and
+  denominator `otherD` of another fraction. The result is a new
+  `Fraction`-object. +
+** *Times Fraction* Test and implement the method `Fraction times(Fraction other)`. Re-use (not copy) the helper function.
+
+* *Plus helper* Test and implement the helper method. It should produce a normalized fraction from the two int values.
+  `Fraction plus( int otherN, int otherD )`
+  to create a `new` fraction.
+** *Plus Fraction* now test and implement the method `Fraction plus(Fraction other)``. Re-use the helper function.
+
+* *Minus, divideBy.*
+  Test and implement minus and divideBy operation.
+  You should re-use the work you did in times and plus, as in
+  invoke the provided helper methods by adapting the parameters, such
+  as changing sign or swapping them.
+* *Unary operators* such as change sign: `Fraction negate()` and `Fraction inverse()` that puts it _upside down_.
+
+*And that is 2/3 of the fraction exercise!*
+
+== Exercise Fraction part 3.
+
+The fraction exercise is functionally complete according to the specifications, or as we formally say, the *Functional Requirements* given are fulfilled. 
+
+However, the fraction class can be improved a bit, addressing the
+non functional requirement of user friendliness.
+
+[TIP]
+====
+Instead of writing new tests, in some case you can simply add more test data records to your test class for
+the tests that probably already exists. It is completely legal to use only part of the the test data.
+Or make a special operation in your operation lookup , that produces a fraction with an opt out of two
+fractions and then  'abuse' the 2nd fraction by taking it's numerator to get an int that you need in the operation `f.plus(int)`. +
+That can look like `"plusInt", ( f1, f2 ) -> f1.plus( f2.getNumerator() )`,[gray]`// ignoring f2.getDenominator()`
+====
+
+* Creating a fraction in which the denominator is 1 should be written as `new Fraction(x)`, thereby improving the API.
+
+
+[TIP]
+====
+Overloading, the term used in the text below, means that you have the *same* method name, but
+a *different* parameter list. The difference here is in the difference in the parameter types, not names.
+====
+
+* Adding to, subtracting from , multiplying with, or dividing by an integer value should be easier to write. +
+  For instance `Fraction two = new Fraction( 1, 4 ).times( 8 )`, +
+  which means the *times*, *divideBy*, *plus* and *minus* methods all get an _overloaded_ sibling with just one int parameter.
+  As an example of such overloading: for divideBY whe will have `Fraction divideBy(Fraction other)` and `Fraction divideBy(int number)`.
+
+There are also a few functional requirements:
+ we would like to add
+
+* *Equals* The fraction does not yet support equals. +
+  Even if numerator and denominator are equal, the inherited from `Object.equals` method will say false when the
+  instances don't refer to the same fraction object. We need to do better.
+* *hashCode* The fraction has (should have) final fields only, making it a perfect candidate for key in a `HashMap` or `HashSet`. +
+  It is also good practice to override *hashCode* whenever you override *equals*.
+* *Comparable Fraction* The fraction class should implement the comparable interface, making it easy to test which of two fractions is the biggest.
+
+* *Test equals and HashCode* Write a test method to test for `equals` and `hashCode`. +
+  Use the utility method `verifyEqualsAndHashCode`. It is given in the test class.
+** *Implement hashCode and equals*. Use the IDE to generate the methods and accept the result.
+* *Test Comparable* Write a Parameterized test to test the comparable fractions. +
+  A csvsource record  could look like `"'one third is less that one half', 1|3,1|2, -1"`. +
+  Use at least 3 such records to test all possible outcomes of `compareTo()`. +
+  Pay attention to the fact that the result of a comparison with compareTo is interpreted wisely,
+  that is, the test record specifies the https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/Integer.html#signum(int)[signum ^] of the result,
+  so assert the signum of the compare-result is equal to the expected value.
+** *Implement Comparable* Make the Fraction comparable by having it implement the corresponding interface. +
+  If the fractions are `a/b` and `c/d`, then it is sufficient to compare
+  the cross product of numerators and denominators `a * d` and `c * b`,
+  because the denominator in the comparison should be made equal, `b * d`, but needs
+  not to be used. To avoid overflow, use long-math. +
+  This is easily done by using `Long.compare( long, long )` to do the compare work and use the proper expressions as input for the ints. +
+  Cast one of the inputs in the expression to long does the https://docs.oracle.com/javase/specs/jls/se11/html/jls-5.html[trick].
+  It is called a promotion, in particular a widening conversion.
+
+*And that makes 3/3 or one whole fraction.*
